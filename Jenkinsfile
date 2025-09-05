@@ -8,6 +8,20 @@ pipeline {
             }
         }
         
+        stage('Install Docker') {
+            steps {
+                sh '''
+                    if ! command -v docker &> /dev/null; then
+                        curl -fsSL https://get.docker.com -o get-docker.sh
+                        sudo sh get-docker.sh
+                        sudo usermod -aG docker jenkins
+                        sudo systemctl start docker
+                        sudo systemctl enable docker
+                    fi
+                '''
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t playwright-tests .'
