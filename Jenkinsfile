@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'node-playwright'
-    }
+    agent any
     
     tools {
         nodejs 'NodeJS'
