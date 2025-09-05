@@ -23,7 +23,7 @@ pipeline {
         
         stage('Generate Report') {
             steps {
-                sh 'npx playwright show-report --host=0.0.0.0'
+                echo 'Report generated in playwright-report directory'
             }
         }
     }
