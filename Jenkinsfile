@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'mcr.microsoft.com/playwright:v1.40.0-jammy'
-            args '-u root'
-        }
-    }
+    agent any
     
     stages {
         stage('Checkout') {
@@ -16,6 +11,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
+                sh 'npx playwright install --with-deps'
             }
         }
         
@@ -34,16 +30,14 @@ pipeline {
     
     post {
         always {
-            node {
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright Report'
-                ])
-            }
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'playwright-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright Report'
+            ])
         }
     }
 }
