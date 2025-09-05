@@ -30,14 +30,7 @@ pipeline {
     
     post {
         always {
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright Report'
-            ])
+            archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
         }
     }
 }
