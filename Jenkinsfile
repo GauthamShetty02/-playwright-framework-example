@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        label 'node-playwright'
+    }
+    
+    tools {
+        nodejs 'NodeJS'
+    }
     
     stages {
         stage('Checkout') {
