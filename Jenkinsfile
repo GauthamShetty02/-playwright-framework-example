@@ -47,10 +47,23 @@ pipeline {
         
         stage('Deploy to Hostinger VPS') {
             steps {
+                script {
+                    def timestamp = new Date().format('yyyy-MM-dd_HH-mm-ss')
+                    def buildFolder = "build-${BUILD_NUMBER}-${timestamp}"
+                }
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     sh """
-                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
-                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/logs/
+                        # Create timestamped folder
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/\${buildFolder}"
+                        
+                        # Copy current report to timestamped folder
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/\${buildFolder}/
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/\${buildFolder}/
+                        
+                        # Copy to latest folder (overwrite)
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/latest"
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/latest/
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/latest/
                     """
                 }
             }
