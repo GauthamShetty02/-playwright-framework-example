@@ -42,7 +42,7 @@ pipeline {
     
     post {
         always {
-            archiveArtifacts artifacts: 'allure-results/**, logs/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
         }
     }
 }
