@@ -93,7 +93,7 @@ pipeline {
 EOF
 
 for dir in \$(ls -1t | grep "^build-" 2>/dev/null || echo ""); do
-    if [ -d "\$dir" ] && [ "\$dir" != "" ]; then
+    if [ -d "\$dir" ] && [ "\$dir" != "" ] && [[ "\$dir" != *"${BUILD_NUMBER}-"* ]]; then
         echo "    <a href=\"\$dir/index.html\" class=\"report-link\">📈 \$dir</a>" >> index.html
     fi
 done
