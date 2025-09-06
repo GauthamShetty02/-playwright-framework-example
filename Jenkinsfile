@@ -51,7 +51,7 @@ pipeline {
             }
         }
         
-        stage('Deploy to Hostinger VPS') {
+         stage('Deploy to Hostinger VPS') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     script {
@@ -81,7 +81,8 @@ pipeline {
                 build job: 'playwright-dashboard-templates', parameters: [
                     string(name: 'VPS_IP', value: params.VPS_IP),
                     string(name: 'VPS_USER', value: params.VPS_USER),
-                    string(name: 'DEPLOY_PATH', value: params.DEPLOY_PATH)
+                    string(name: 'DEPLOY_PATH', value: params.DEPLOY_PATH),
+                    string(name: 'PROJECT_NAME', value: params.PROJECT_NAME)
                 ], wait: true
                 
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
@@ -91,7 +92,7 @@ pipeline {
                         ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "cp ${params.DEPLOY_PATH}/generate-index.sh ${params.DEPLOY_PATH}/${params.PROJECT_NAME}/"
                         
                         # Generate project-specific index
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "cd ${params.DEPLOY_PATH}/${params.PROJECT_NAME} && chmod +x generate-index.sh && ./generate-index.sh ${BUILD_NUMBER} ."
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "cd ${params.DEPLOY_PATH}/${params.PROJECT_NAME} && chmod +x generate-index.sh && ./generate-index.sh ${BUILD_NUMBER} . ${params.PROJECT_NAME}"
                         
                         # Generate multi-project dashboard
                         ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "${params.DEPLOY_PATH}/generate-multi-project-index.sh ${params.DEPLOY_PATH}"
