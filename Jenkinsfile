@@ -38,6 +38,17 @@ pipeline {
                 ])
             }
         }
+        
+        stage('Deploy to Hostinger VPS') {
+            steps {
+                sshagent(['hostinger-ssh-key']) {
+                    sh '''
+                        scp -r allure-report/* user@your-vps-ip:/var/www/html/test-reports/
+                        scp -r logs/* user@your-vps-ip:/var/www/html/test-reports/logs/
+                    '''
+                }
+            }
+        }
     }
     
     post {
