@@ -1,6 +1,12 @@
 pipeline {
     agent any
     
+    parameters {
+        string(name: 'VPS_IP', defaultValue: '72.60.99.67', description: 'VPS IP Address')
+        string(name: 'VPS_USER', defaultValue: 'root', description: 'VPS Username')
+        string(name: 'DEPLOY_PATH', defaultValue: '/var/www/html/test-reports', description: 'Deployment Path on VPS')
+    }
+    
     stages {
         stage('Checkout') {
             steps {
@@ -43,8 +49,8 @@ pipeline {
             steps {
                 sshagent(['hostinger-ssh-key']) {
                     sh '''
-                        scp -r allure-report/* user@your-vps-ip:/var/www/html/test-reports/
-                        scp -r logs/* user@your-vps-ip:/var/www/html/test-reports/logs/
+                        scp -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
+                        scp -r logs/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/logs/
                     '''
                 }
             }
