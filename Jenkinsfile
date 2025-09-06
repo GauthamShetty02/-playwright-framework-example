@@ -88,13 +88,13 @@ pipeline {
 </head>
 <body>
     <h1>Playwright Test Reports</h1>
-    <a href="latest/index.html" class="report-link latest">📊 Latest Report (Build ${BUILD_NUMBER})</a>
+    <a href="latest/index.html" class="report-link latest"> Latest Report (Build ${BUILD_NUMBER})</a>
     <h2>Historical Reports</h2>
 EOF
 
 for dir in \$(ls -1t | grep "^build-" 2>/dev/null || echo ""); do
     if [ -d "\$dir" ] && [ "\$dir" != "" ] && [[ "\$dir" != *"${BUILD_NUMBER}-"* ]]; then
-        echo "    <a href=\"\$dir/index.html\" class=\"report-link\">📈 \$dir</a>" >> index.html
+        echo "    <a href=\"\$dir/index.html\" class=\"report-link\"> \$dir</a>" >> index.html
     fi
 done
 
