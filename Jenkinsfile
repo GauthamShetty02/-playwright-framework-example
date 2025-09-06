@@ -47,10 +47,10 @@ pipeline {
         
         stage('Deploy to Hostinger VPS') {
             steps {
-                sshagent(['hostinger-ssh-key']) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     sh '''
-                        scp -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
-                        scp -r logs/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/logs/
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no -r logs/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/logs/
                     '''
                 }
             }
