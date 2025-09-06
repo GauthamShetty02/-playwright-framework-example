@@ -16,13 +16,19 @@ pipeline {
         
         stage('Run Tests') {
             steps {
-                sh 'docker run --rm -v $(pwd)/playwright-report:/app/playwright-report playwright-framework:latest'
+                sh 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/playwright-report:/app/playwright-report playwright-framework:latest'
             }
         }
         
-        stage('Generate Report') {
+        stage('Generate Allure Report') {
             steps {
-                echo 'Report generated in playwright-report directory'
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'allure-results']]
+                ])
             }
         }
     }
