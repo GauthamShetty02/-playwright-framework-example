@@ -1,22 +1,166 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Reports</title>
+    <title>Playwright Test Reports Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .latest { background-color: #e8f5e8; font-weight: bold; }
-        .report-link { display: block; padding: 10px; margin: 5px 0; text-decoration: none; border: 1px solid #ddd; }
-        .report-link:hover { background-color: #f0f0f0; }
-        .historical { margin-top: 20px; }
-        .no-reports { color: #666; font-style: italic; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .latest-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        
+        .report-link {
+            display: block;
+            padding: 20px;
+            margin: 15px 0;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+        }
+        
+        .latest {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-left-color: #00c851;
+            color: #2e7d32;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0,200,81,0.2);
+        }
+        
+        .latest:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,200,81,0.3);
+        }
+        
+        .historical-link {
+            background: #f8f9fa;
+            border-left-color: #6c757d;
+            color: #495057;
+            border: 1px solid #e9ecef;
+        }
+        
+        .historical-link:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left-color: #4facfe;
+        }
+        
+        .no-reports {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .timestamp {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .report-link {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Playwright Test Reports</h1>
-    <a href="latest/index.html" class="report-link latest">📊 Latest Report (Build {{BUILD_NUMBER}})</a>
-    <div class="historical">
-        <h2>Historical Reports</h2>
-        {{HISTORICAL_REPORTS}}
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Playwright Test Reports</h1>
+            <p>Automated Testing Dashboard</p>
+        </div>
+        
+        <div class="content">
+            <div class="latest-section">
+                <h2 class="section-title">📊 Latest Report</h2>
+                <a href="latest/index.html" class="report-link latest">
+                    🚀 Build {{BUILD_NUMBER}} - Latest Test Results
+                    <span class="badge">CURRENT</span>
+                    <div class="timestamp">Click to view detailed test results</div>
+                </a>
+            </div>
+            
+            <div class="historical-section">
+                <h2 class="section-title">📈 Historical Reports</h2>
+                {{HISTORICAL_REPORTS}}
+            </div>
+        </div>
     </div>
 </body>
 </html>
