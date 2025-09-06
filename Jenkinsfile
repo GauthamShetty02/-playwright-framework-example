@@ -1,10 +1,6 @@
 pipeline {
     agent any
     
-    tools {
-        nodejs 'NodeJS'
-    }
-    
     stages {
         stage('Checkout') {
             steps {
@@ -12,21 +8,15 @@ pipeline {
             }
         }
         
-        stage('Setup Environment') {
+        stage('Build Docker Image') {
             steps {
-                sh '''
-                    if ! npm list -g playwright-test-framework-advanced &>/dev/null; then
-                        npm install -g playwright-test-framework-advanced@^1.0.0
-                        npx playwright install --with-deps || npx playwright install
-                    fi
-                '''
-                sh 'npm ci'
+                sh 'docker build -t playwright-tests .'
             }
         }
         
         stage('Run Tests') {
             steps {
-                sh 'npx playwright test'
+                sh 'docker run --rm -v $(pwd)/playwright-report:/app/playwright-report playwright-tests'
             }
         }
         
