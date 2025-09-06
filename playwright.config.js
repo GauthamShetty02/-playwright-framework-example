@@ -1,7 +1,6 @@
 module.exports = {
   testDir: './tests',
   reporter: [
-    ['html'],
     ['allure-playwright']
   ],
   use: {

@@ -16,14 +16,14 @@ pipeline {
         
         stage('Cleanup Previous Results') {
             steps {
-                sh 'rm -rf allure-results playwright-report combined.log || true'
-                sh 'mkdir -p allure-results playwright-report'
+                sh 'rm -rf allure-results logs || true'
+                sh 'mkdir -p allure-results logs'
             }
         }
         
         stage('Run Tests') {
             steps {
-                sh 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/playwright-report:/app/playwright-report playwright-framework:latest'
+                sh 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest'
             }
         }
         
@@ -42,7 +42,7 @@ pipeline {
     
     post {
         always {
-            archiveArtifacts artifacts: 'playwright-report/**, allure-results/**, combined.log', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'allure-results/**, logs/**', allowEmptyArchive: true
         }
     }
 }
