@@ -74,35 +74,12 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     sh """
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} 'cd ${params.DEPLOY_PATH} && cat > index.html << EOF
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Test Reports</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .latest { background-color: #e8f5e8; font-weight: bold; }
-        .report-link { display: block; padding: 10px; margin: 5px 0; text-decoration: none; border: 1px solid #ddd; }
-        .report-link:hover { background-color: #f0f0f0; }
-    </style>
-</head>
-<body>
-    <h1>Playwright Test Reports</h1>
-    <a href="latest/index.html" class="report-link latest"> Latest Report (Build ${BUILD_NUMBER})</a>
-    <h2>Historical Reports</h2>
-EOF
-
-for dir in \$(ls -1t | grep "^build-" 2>/dev/null || echo ""); do
-    if [ -d "\$dir" ] && [ "\$dir" != "" ] && [[ "\$dir" != *"${BUILD_NUMBER}-"* ]]; then
-        echo "    <a href=\"\$dir/index.html\" class=\"report-link\"> \$dir</a>" >> index.html
-    fi
-done
-
-if [ \$(ls -1d build-* 2>/dev/null | wc -l) -eq 0 ]; then
-    echo "    <p>No historical reports yet. Run more tests to see history.</p>" >> index.html
-fi
-
-echo "</body></html>" >> index.html'
+                        # Copy template and script to VPS
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no index-template.html ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no generate-index.sh ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
+                        
+                        # Execute script on VPS
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "chmod +x ${params.DEPLOY_PATH}/generate-index.sh && ${params.DEPLOY_PATH}/generate-index.sh ${BUILD_NUMBER} ${params.DEPLOY_PATH}"
                     """
                 }
             }

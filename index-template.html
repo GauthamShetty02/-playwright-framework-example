@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reports</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .latest { background-color: #e8f5e8; font-weight: bold; }
+        .report-link { display: block; padding: 10px; margin: 5px 0; text-decoration: none; border: 1px solid #ddd; }
+        .report-link:hover { background-color: #f0f0f0; }
+        .historical { margin-top: 20px; }
+        .no-reports { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Playwright Test Reports</h1>
+    <a href="latest/index.html" class="report-link latest">📊 Latest Report (Build {{BUILD_NUMBER}})</a>
+    <div class="historical">
+        <h2>Historical Reports</h2>
+        {{HISTORICAL_REPORTS}}
+    </div>
+</body>
+</html>
