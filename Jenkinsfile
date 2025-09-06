@@ -91,11 +91,15 @@ pipeline {
     <h2>Historical Reports</h2>
 EOF
 
-ls -1t build-* 2>/dev/null | while read dir; do
-    if [ -d "\$dir" ]; then
+for dir in \$(ls -1t | grep "^build-" 2>/dev/null || echo ""); do
+    if [ -d "\$dir" ] && [ "\$dir" != "" ]; then
         echo "    <a href=\"\$dir/index.html\" class=\"report-link\">📈 \$dir</a>" >> index.html
     fi
 done
+
+if [ \$(ls -1d build-* 2>/dev/null | wc -l) -eq 0 ]; then
+    echo "    <p>No historical reports yet. Run more tests to see history.</p>" >> index.html
+fi
 
 echo "</body></html>" >> index.html'
                     """
