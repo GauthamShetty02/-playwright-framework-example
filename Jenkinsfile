@@ -68,6 +68,40 @@ pipeline {
                 }
             }
         }
+        
+        stage('Generate Index Page') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                    sh """
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} 'cd ${params.DEPLOY_PATH} && cat > index.html << "EOF"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reports</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .latest { background-color: #e8f5e8; font-weight: bold; }
+        .report-link { display: block; padding: 10px; margin: 5px 0; text-decoration: none; border: 1px solid #ddd; }
+        .report-link:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Playwright Test Reports</h1>
+    <a href="latest/index.html" class="report-link latest">📊 Latest Report (Build ${BUILD_NUMBER})</a>
+    <h2>Historical Reports</h2>
+EOF
+
+for dir in build-*; do
+    if [ -d "\$dir" ]; then
+        echo "    <a href=\"\$dir/index.html\" class=\"report-link\">📈 \$dir</a>" >> index.html
+    fi
+done
+
+echo "</body></html>" >> index.html'
+                    """
+                }
+            }
+        }
     }
     
     post {
