@@ -5,6 +5,7 @@ pipeline {
         string(name: 'VPS_IP', defaultValue: '72.60.99.67', description: 'VPS IP Address')
         string(name: 'VPS_USER', defaultValue: 'root', description: 'VPS Username')
         string(name: 'DEPLOY_PATH', defaultValue: '/var/www/html/test-reports', description: 'Deployment Path on VPS')
+        string(name: 'PROJECT_NAME', defaultValue: 'playwright-framework', description: 'Project Name')
     }
     
     stages {
@@ -53,33 +54,38 @@ pipeline {
                         def buildFolder = "build-${BUILD_NUMBER}-${timestamp}"
                         
                         sh """
-                            # Create timestamped folder
-                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/${buildFolder}"
+                            # Create project-specific folders
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/${params.PROJECT_NAME}/${buildFolder}"
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/${params.PROJECT_NAME}/latest"
 
                             # Copy current report to timestamped folder
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${buildFolder}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${buildFolder}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${params.PROJECT_NAME}/${buildFolder}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${params.PROJECT_NAME}/${buildFolder}/
 
                             # Copy to latest folder (overwrite)
-                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "mkdir -p ${params.DEPLOY_PATH}/latest"
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/latest/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/latest/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r allure-report/* ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${params.PROJECT_NAME}/latest/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no -r logs ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/${params.PROJECT_NAME}/latest/
                         """
                     }
                 }
             }
         }
         
-        stage('Generate Index Page') {
+        stage('Generate Dashboard') {
             steps {
+                build job: 'playwright-dashboard-templates', parameters: [
+                    string(name: 'VPS_IP', value: params.VPS_IP),
+                    string(name: 'VPS_USER', value: params.VPS_USER),
+                    string(name: 'DEPLOY_PATH', value: params.DEPLOY_PATH)
+                ], wait: true
+                
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     sh """
-                        # Copy template and script to VPS
-                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no index-template.html ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
-                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no generate-index.sh ${params.VPS_USER}@${params.VPS_IP}:${params.DEPLOY_PATH}/
+                        # Generate project-specific index
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "${params.DEPLOY_PATH}/generate-index.sh ${BUILD_NUMBER} ${params.DEPLOY_PATH}/${params.PROJECT_NAME}"
                         
-                        # Execute script on VPS
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "chmod +x ${params.DEPLOY_PATH}/generate-index.sh && ${params.DEPLOY_PATH}/generate-index.sh ${BUILD_NUMBER} ${params.DEPLOY_PATH}"
+                        # Generate multi-project dashboard
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} "${params.DEPLOY_PATH}/generate-multi-project-index.sh ${params.DEPLOY_PATH}"
                     """
                 }
             }
