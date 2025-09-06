@@ -73,7 +73,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'hostinger-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     sh """
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} 'cd ${params.DEPLOY_PATH} && cat > index.html << "EOF"
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${params.VPS_USER}@${params.VPS_IP} 'cd ${params.DEPLOY_PATH} && cat > index.html << EOF
 <!DOCTYPE html>
 <html>
 <head>
@@ -91,7 +91,7 @@ pipeline {
     <h2>Historical Reports</h2>
 EOF
 
-for dir in build-*; do
+ls -1t build-* 2>/dev/null | while read dir; do
     if [ -d "\$dir" ]; then
         echo "    <a href=\"\$dir/index.html\" class=\"report-link\">📈 \$dir</a>" >> index.html
     fi
