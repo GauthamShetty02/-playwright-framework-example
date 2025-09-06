@@ -23,7 +23,8 @@ pipeline {
         
         stage('Cleanup Previous Results') {
             steps {
-                sh 'rm -rf allure-results logs || true'
+                sh 'rm -rf allure-results logs allure-report || true'
+                sh 'rm -rf .allure || true'
                 sh 'mkdir -p allure-results logs'
             }
         }
@@ -36,6 +37,10 @@ pipeline {
         
         stage('Generate Allure Report') {
             steps {
+                script {
+                    // Clean any existing allure report
+                    sh 'rm -rf ${WORKSPACE}/allure-report || true'
+                }
                 allure([
                     includeProperties: false,
                     jdk: '',
