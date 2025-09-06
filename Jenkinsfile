@@ -8,10 +8,9 @@ pipeline {
             }
         }
         
-        stage('Load Docker Image') {
+        stage('Pull Docker Image') {
             steps {
-                copyArtifacts projectName: 'playwright-docker-builder', selector: lastSuccessful()
-                sh 'docker load < playwright-framework.tar'
+                sh 'docker pull playwright-framework:latest || echo "Using local image"'
             }
         }
         
