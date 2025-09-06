@@ -8,15 +8,16 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
+        stage('Load Docker Image') {
             steps {
-                sh 'docker build -t playwright-tests .'
+                copyArtifacts projectName: 'playwright-docker-builder', selector: lastSuccessful()
+                sh 'docker load < playwright-framework.tar'
             }
         }
         
         stage('Run Tests') {
             steps {
-                sh 'docker run --rm -v $(pwd)/playwright-report:/app/playwright-report playwright-tests'
+                sh 'docker run --rm -v $(pwd)/playwright-report:/app/playwright-report playwright-framework:latest'
             }
         }
         
