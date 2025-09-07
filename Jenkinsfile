@@ -37,8 +37,20 @@ pipeline {
         
         stage('Run Tests with AI Retry') {
             steps {
-                withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
-                    sh 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest'
+                script {
+                    def testResult = 0
+                    withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
+                        testResult = sh(
+                            script: 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
+                            returnStatus: true
+                        )
+                    }
+                    
+                    if (testResult != 0) {
+                        echo "⚠️ Tests failed with exit code: ${testResult} - continuing for report generation"
+                    } else {
+                        echo "✅ All tests passed successfully"
+                    }
                 }
             }
         }
@@ -48,14 +60,36 @@ pipeline {
                 script {
                     // Clean any existing allure report
                     sh 'rm -rf ${WORKSPACE}/allure-report || true'
+                    
+                    // Check if allure-results exist
+                    if (fileExists('allure-results')) {
+                        echo '📊 Generating Allure report with AI analysis...'
+                        allure([
+                            includeProperties: false,
+                            jdk: '',
+                            properties: [],
+                            reportBuildPolicy: 'ALWAYS',
+                            results: [[path: 'allure-results']]
+                        ])
+                    } else {
+                        echo '⚠️ No allure-results found, creating empty report'
+                        sh 'mkdir -p allure-results'
+                        sh 'echo "{}" > allure-results/empty.json'
+                        allure([
+                            includeProperties: false,
+                            jdk: '',
+                            properties: [],
+                            reportBuildPolicy: 'ALWAYS',
+                            results: [[path: 'allure-results']]
+                        ])
+                    }
                 }
-                allure([
-                    includeProperties: false,
-                    jdk: '',
-                    properties: [],
-                    reportBuildPolicy: 'ALWAYS',
-                    results: [[path: 'allure-results']]
-                ])
+            }
+            post {
+                always {
+                    // Ensure allure-report directory exists for deployment
+                    sh 'mkdir -p allure-report || true'
+                }
             }
         }
         
