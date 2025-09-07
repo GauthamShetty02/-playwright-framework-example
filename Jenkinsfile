@@ -15,6 +15,12 @@ pipeline {
             }
         }
         
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t playwright-framework:latest .'
