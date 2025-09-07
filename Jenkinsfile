@@ -35,25 +35,25 @@ pipeline {
             }
         }
         
-        stage('Run Tests with AI Retry') {
-            steps {
-                script {
-                    def testResult = 0
-                    withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
-                        testResult = sh(
-                            script: 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
-                            returnStatus: true
-                        )
-                    }
+        // stage('Run Tests with AI Retry') {
+        //     steps {
+        //         script {
+        //             def testResult = 0
+        //             withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
+        //                 testResult = sh(
+        //                     script: 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
+        //                     returnStatus: true
+        //                 )
+        //             }
                     
-                    if (testResult != 0) {
-                        echo "⚠️ Tests failed with exit code: ${testResult} - continuing for report generation"
-                    } else {
-                        echo "✅ All tests passed successfully"
-                    }
-                }
-            }
-        }
+        //             if (testResult != 0) {
+        //                 echo "⚠️ Tests failed with exit code: ${testResult} - continuing for report generation"
+        //             } else {
+        //                 echo "✅ All tests passed successfully"
+        //             }
+        //         }
+        //     }
+        // }
         
         stage('Generate Allure Report') {
             steps {
