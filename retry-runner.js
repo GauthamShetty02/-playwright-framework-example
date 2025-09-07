@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import AIFailureAnalyzer from './ai-analyzer.js';
+import { AllureAIReporter } from './allure-helper.js';
 import fs from 'fs';
 
 class SmartRetryRunner {
@@ -23,6 +24,7 @@ class SmartRetryRunner {
         });
         
         console.log('✅ Tests passed successfully!');
+        AllureAIReporter.createTestSummary(0, 0, 0, null); // Will be updated with actual counts
         return { success: true, attempts: attempt };
         
       } catch (error) {
@@ -61,6 +63,24 @@ class SmartRetryRunner {
           // Write AI analysis to log file
           fs.appendFileSync('./logs/ai-analysis.log', `\n[${new Date().toISOString()}] Build Attempt ${attempt}\n${analysisReport}`);
           
+          // Create AI analysis attachment for Allure
+          const aiAnalysisFile = `./allure-results/ai-analysis-${Date.now()}.json`;
+          const allureAttachment = {
+            timestamp: new Date().toISOString(),
+            buildAttempt: attempt,
+            maxRetries: this.maxRetries,
+            analysis: lastAnalysis,
+            recommendation: lastAnalysis.isRetryable ? `Retry with ${lastAnalysis.retryStrategy} strategy` : 'Do not retry'
+          };
+          fs.writeFileSync(aiAnalysisFile, JSON.stringify(allureAttachment, null, 2));
+          
+          // Create human-readable AI report for Allure
+          const humanReadableReport = `./allure-results/ai-report-${Date.now()}.txt`;
+          fs.writeFileSync(humanReadableReport, analysisReport);
+          
+          // Add AI analysis to Allure report
+          AllureAIReporter.addAIAnalysisToReport(lastAnalysis, attempt);
+          
           // Decide if we should retry
           const shouldRetry = await this.analyzer.shouldRetry(lastAnalysis, attempt);
           
@@ -83,6 +103,7 @@ class SmartRetryRunner {
         }
         
         console.log('🚫 No more retries. Tests failed.');
+        AllureAIReporter.createTestSummary(0, 0, 1, lastAnalysis); // Will be updated with actual counts
         return { 
           success: false, 
           attempts: attempt, 
