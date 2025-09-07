@@ -17,7 +17,7 @@ class SmartRetryRunner {
       
       try {
         // Run tests
-        execSync('npx playwright test', { 
+        execSync('npx playwright test --reporter=dot,allure-playwright', { 
           stdio: 'inherit',
           cwd: process.cwd()
         });
