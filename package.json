@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "playwright-test-framework-advanced": "^1.0.0",
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "groq-sdk": "^0.3.0",
+    "allure-playwright": "^2.9.0"
   }
 }

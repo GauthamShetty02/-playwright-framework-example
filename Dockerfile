@@ -10,4 +10,6 @@ RUN npm ci
 
 COPY . .
 
-CMD ["npx", "playwright", "test"]
+COPY ai-analyzer.js retry-runner.js ./
+
+CMD ["node", "retry-runner.js"]

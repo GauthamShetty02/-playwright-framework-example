@@ -29,9 +29,11 @@ pipeline {
             }
         }
         
-        stage('Run Tests') {
+        stage('Run Tests with AI Retry') {
             steps {
-                sh 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest'
+                withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
+                    sh 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest'
+                }
             }
         }
         
