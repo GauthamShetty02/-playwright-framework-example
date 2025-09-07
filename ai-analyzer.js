@@ -13,22 +13,37 @@ class AIFailureAnalyzer {
     try {
       const logContent = fs.readFileSync(logPath, 'utf8');
       
+      // Extract test failures
+      const failedTests = this.extractFailedTests(logContent);
+      
       const prompt = `
-        Analyze this test failure log and provide:
-        1. Root cause of failure
-        2. Whether it's retryable (network, timeout, flaky)
-        3. Suggested fix
-        4. Retry strategy (immediate, delayed, skip)
+        Analyze this test failure log and provide detailed analysis:
+        1. Which specific test cases failed
+        2. Root cause of each failure
+        3. Whether failures are retryable (network, timeout, flaky, selector issues)
+        4. Suggested fixes for each failure
+        5. Overall retry strategy
         
-        Log content:
-        ${logContent.slice(-2000)} // Last 2000 chars
+        Failed Tests Detected:
+        ${failedTests.map(test => `- ${test.name}: ${test.error}`).join('\n')}
+        
+        Full Log Content (last 2000 chars):
+        ${logContent.slice(-2000)}
         
         Respond in JSON format:
         {
-          "rootCause": "description",
+          "failedTests": [
+            {
+              "testName": "test name",
+              "errorType": "selector|network|timeout|assertion",
+              "errorMessage": "specific error",
+              "suggestedFix": "how to fix this test"
+            }
+          ],
+          "rootCause": "overall root cause",
           "isRetryable": boolean,
           "retryStrategy": "immediate|delayed|skip",
-          "suggestedFix": "description",
+          "suggestedFix": "overall suggested fix",
           "confidence": 0.0-1.0
         }
       `;
@@ -44,6 +59,7 @@ class AIFailureAnalyzer {
     } catch (error) {
       console.error('AI Analysis failed:', error);
       return {
+        failedTests: [],
         rootCause: 'Analysis failed',
         isRetryable: true,
         retryStrategy: 'delayed',
@@ -51,6 +67,39 @@ class AIFailureAnalyzer {
         confidence: 0.0
       };
     }
+  }
+
+  extractFailedTests(logContent) {
+    const failedTests = [];
+    const lines = logContent.split('\n');
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Look for test failure patterns
+      if (line.includes('›') && (line.includes('failed') || line.includes('✘'))) {
+        const testMatch = line.match(/› (.+?) ›/);
+        if (testMatch) {
+          const testName = testMatch[1];
+          
+          // Look for error details in following lines
+          let errorMessage = '';
+          for (let j = i + 1; j < Math.min(i + 10, lines.length); j++) {
+            if (lines[j].includes('Error:') || lines[j].includes('TimeoutError:') || lines[j].includes('expect(')) {
+              errorMessage = lines[j].trim();
+              break;
+            }
+          }
+          
+          failedTests.push({
+            name: testName,
+            error: errorMessage || 'Unknown error'
+          });
+        }
+      }
+    }
+    
+    return failedTests;
   }
 
   async shouldRetry(analysis, attemptCount = 1) {

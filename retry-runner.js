@@ -34,13 +34,25 @@ class SmartRetryRunner {
           console.log('🔍 Analyzing failure with AI...');
           lastAnalysis = await this.analyzer.analyzeFailureLogs(logPath);
           
+          let failedTestsReport = '';
+          if (lastAnalysis.failedTests && lastAnalysis.failedTests.length > 0) {
+            failedTestsReport = '\n📝 FAILED TESTS DETAILS:\n';
+            lastAnalysis.failedTests.forEach((test, index) => {
+              failedTestsReport += `  ${index + 1}. 🔴 ${test.testName}\n`;
+              failedTestsReport += `     ⚠️ Error Type: ${test.errorType || 'Unknown'}\n`;
+              failedTestsReport += `     💬 Error: ${test.errorMessage}\n`;
+              failedTestsReport += `     🔧 Fix: ${test.suggestedFix}\n\n`;
+            });
+          }
+          
           const analysisReport = `
 🤖 ===== AI FAILURE ANALYSIS REPORT =====
+📊 Build Attempt: ${attempt}/${this.maxRetries}
 🔴 Root Cause: ${lastAnalysis.rootCause}
 🔄 Retryable: ${lastAnalysis.isRetryable ? 'YES' : 'NO'}
 🎯 Strategy: ${lastAnalysis.retryStrategy.toUpperCase()}
 📊 Confidence: ${(lastAnalysis.confidence * 100).toFixed(1)}%
-🔧 Suggested Fix: ${lastAnalysis.suggestedFix}
+🔧 Overall Fix: ${lastAnalysis.suggestedFix}${failedTestsReport}
 ========================================
 `;
           
