@@ -34,12 +34,20 @@ class SmartRetryRunner {
           console.log('🔍 Analyzing failure with AI...');
           lastAnalysis = await this.analyzer.analyzeFailureLogs(logPath);
           
-          console.log(`📊 AI Analysis:
-            Root Cause: ${lastAnalysis.rootCause}
-            Retryable: ${lastAnalysis.isRetryable}
-            Strategy: ${lastAnalysis.retryStrategy}
-            Confidence: ${(lastAnalysis.confidence * 100).toFixed(1)}%
-            Fix: ${lastAnalysis.suggestedFix}`);
+          const analysisReport = `
+🤖 ===== AI FAILURE ANALYSIS REPORT =====
+🔴 Root Cause: ${lastAnalysis.rootCause}
+🔄 Retryable: ${lastAnalysis.isRetryable ? 'YES' : 'NO'}
+🎯 Strategy: ${lastAnalysis.retryStrategy.toUpperCase()}
+📊 Confidence: ${(lastAnalysis.confidence * 100).toFixed(1)}%
+🔧 Suggested Fix: ${lastAnalysis.suggestedFix}
+========================================
+`;
+          
+          console.log(analysisReport);
+          
+          // Write AI analysis to log file
+          fs.appendFileSync('./logs/ai-analysis.log', `\n[${new Date().toISOString()}] Build Attempt ${attempt}\n${analysisReport}`);
           
           // Decide if we should retry
           const shouldRetry = await this.analyzer.shouldRetry(lastAnalysis, attempt);
@@ -47,6 +55,7 @@ class SmartRetryRunner {
           if (shouldRetry && attempt < this.maxRetries) {
             const delay = this.analyzer.getRetryDelay(lastAnalysis.retryStrategy, attempt);
             
+            console.log(`🔄 AI recommends retry with ${lastAnalysis.retryStrategy} strategy`);
             if (delay > 0) {
               console.log(`⏳ Waiting ${delay}ms before retry...`);
               await new Promise(resolve => setTimeout(resolve, delay));
@@ -54,7 +63,11 @@ class SmartRetryRunner {
             
             attempt++;
             continue;
+          } else {
+            console.log(`🚫 AI analysis: No retry recommended (Attempt ${attempt}/${this.maxRetries})`);
           }
+        } else {
+          console.log('⚠️ No log file found for AI analysis');
         }
         
         console.log('🚫 No more retries. Tests failed.');

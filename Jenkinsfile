@@ -113,6 +113,12 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
+            script {
+                if (fileExists('logs/ai-analysis.log')) {
+                    echo '🤖 AI Analysis Report:'
+                    sh 'cat logs/ai-analysis.log || echo "No AI analysis available"'
+                }
+            }
         }
     }
 }
