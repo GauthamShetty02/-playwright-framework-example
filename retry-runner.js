@@ -1,6 +1,6 @@
-const { execSync } = require('child_process');
-const AIFailureAnalyzer = require('./ai-analyzer');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import AIFailureAnalyzer from './ai-analyzer.js';
+import fs from 'fs';
 
 class SmartRetryRunner {
   constructor() {
@@ -69,7 +69,7 @@ class SmartRetryRunner {
 }
 
 // Run if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const runner = new SmartRetryRunner();
   runner.runTestsWithAIRetry()
     .then(result => {
@@ -82,4 +82,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = SmartRetryRunner;
+export default SmartRetryRunner;

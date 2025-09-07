@@ -1,6 +1,6 @@
-const Groq = require('groq-sdk');
-const fs = require('fs');
-const path = require('path');
+import Groq from 'groq-sdk';
+import fs from 'fs';
+import path from 'path';
 
 class AIFailureAnalyzer {
   constructor() {
@@ -70,4 +70,4 @@ class AIFailureAnalyzer {
   }
 }
 
-module.exports = AIFailureAnalyzer;
+export default AIFailureAnalyzer;
