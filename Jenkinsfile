@@ -34,7 +34,7 @@ pipeline {
                 sh 'mkdir -p allure-results logs'
             }
         }
-        
+
         // stage('Run Tests with AI Retry') {
         //     steps {
         //         script {
@@ -54,6 +54,25 @@ pipeline {
         //         }
         //     }
         // }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    def testResult = sh(
+                        script: 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest npx playwright test --reporter=dot,allure-playwright',
+                        returnStatus: true
+                    )
+                    
+                    if (testResult != 0) {
+                        echo "⚠️ Tests failed with exit code: ${testResult} - continuing for report generation"
+                    } else {
+                        echo "✅ All tests passed successfully"
+                    }
+                }
+            }
+        }
+
+
         
         stage('Generate Allure Report') {
             steps {
