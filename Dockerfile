@@ -47,8 +47,6 @@ RUN mkdir /ms-playwright && \
 
 # === PROJECT SETUP ===
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
 COPY . .
 
 # Create all required directories
