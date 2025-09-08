@@ -29,7 +29,6 @@ pipeline {
                 sh 'mkdir -p allure-results logs'
             }
         }
-
         
         // stage('Run Tests with AI Retry') {
         //     steps {
@@ -162,12 +161,12 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
-            // script {
-            //     if (fileExists('logs/ai-analysis.log')) {
-            //         echo '🤖 AI Analysis Report:'
-            //         sh 'cat logs/ai-analysis.log || echo "No AI analysis available"'
-            //     }
-            // }
+            script {
+                if (fileExists('logs/ai-analysis.log')) {
+                    echo '🤖 AI Analysis Report:'
+                    sh 'cat logs/ai-analysis.log || echo "No AI analysis available"'
+                }
+            }
         }
     }
 }
