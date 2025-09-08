@@ -15,11 +15,6 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
         
         stage('Build Docker Image') {
             steps {
@@ -35,6 +30,7 @@ pipeline {
             }
         }
 
+        
         // stage('Run Tests with AI Retry') {
         //     steps {
         //         script {
@@ -82,7 +78,7 @@ pipeline {
                     
                     // Check if allure-results exist
                     if (fileExists('allure-results')) {
-                        echo '📊 Generating Allure report with AI analysis...'
+                        echo '📊 Generating Allure report...'
                         allure([
                             includeProperties: false,
                             jdk: '',
@@ -166,12 +162,12 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
-            script {
-                if (fileExists('logs/ai-analysis.log')) {
-                    echo '🤖 AI Analysis Report:'
-                    sh 'cat logs/ai-analysis.log || echo "No AI analysis available"'
-                }
-            }
+            // script {
+            //     if (fileExists('logs/ai-analysis.log')) {
+            //         echo '🤖 AI Analysis Report:'
+            //         sh 'cat logs/ai-analysis.log || echo "No AI analysis available"'
+            //     }
+            // }
         }
     }
 }
