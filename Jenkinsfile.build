@@ -15,11 +15,11 @@ pipeline {
             }
         }
         
-        // stage('Push to Registry') {
-        //     steps {
-        //         sh 'docker save playwright-framework:latest > playwright-framework.tar'
-        //         archiveArtifacts artifacts: 'playwright-framework.tar', allowEmptyArchive: false
-        //     }
-        // }
+        stage('Push to Registry') {
+            steps {
+                sh 'docker save playwright-framework:latest > playwright-framework.tar'
+                archiveArtifacts artifacts: 'playwright-framework.tar', allowEmptyArchive: false
+            }
+        }
     }
 }
