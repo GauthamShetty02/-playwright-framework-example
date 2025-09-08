@@ -51,9 +51,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Create all required directories with proper permissions
-RUN mkdir -p /app/test-results /app/allure-results /app/playwright-report /app/logs && \
-    chown -R pwuser:pwuser /app/test-results /app/allure-results /app/playwright-report /app/logs
+# Create all required directories
+RUN mkdir -p /app/test-results /app/allure-results /app/playwright-report /app/logs
 
-USER pwuser
 CMD ["npx", "playwright", "test"]
