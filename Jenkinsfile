@@ -59,7 +59,7 @@ pipeline {
             steps {
                 script {
                     def testResult = sh(
-                        script: 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest npx playwright test --reporter=dot,allure-playwright',
+                        script: 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
                         returnStatus: true
                     )
                     

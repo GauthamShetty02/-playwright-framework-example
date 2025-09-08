@@ -1,15 +1,15 @@
-FROM mcr.microsoft.com/playwright:v1.40.0-jammy
+FROM mcr.microsoft.com/playwright:v1.40.0-noble
 
 WORKDIR /app
 
-RUN npm install playwright-test-framework-advanced@^1.0.0
-RUN npx playwright install --with-deps
-
+# Copy package files first for better caching
 COPY package*.json ./
-RUN npm install
 
+# Install dependencies
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-COPY ai-analyzer.js retry-runner.js ./
-
-CMD ["node", "retry-runner.js"]
+# Default command
+CMD ["npx", "playwright", "test"]
