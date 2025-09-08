@@ -44,3 +44,12 @@ RUN mkdir /ms-playwright && \
     rm -rf /ms-playwright-agent && \
     rm -rf ~/.npm/ && \
     chmod -R 777 /ms-playwright
+
+# === PROJECT SETUP ===
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+
+USER pwuser
+CMD ["npx", "playwright", "test"]
