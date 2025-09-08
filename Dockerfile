@@ -47,6 +47,10 @@ RUN mkdir /ms-playwright && \
 
 # === PROJECT SETUP ===
 WORKDIR /app
+
+# Install only playwright-test-framework-advanced in Docker
+RUN npm install playwright-test-framework-advanced@^1.0.0
+
 COPY . .
 
 # Create all required directories
