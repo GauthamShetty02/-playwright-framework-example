@@ -84,6 +84,8 @@ pipeline {
                     // Check if allure-results exist
                     if (fileExists('allure-results')) {
                         echo '📊 Generating Allure report...'
+                        // Fix permissions for allure history
+                        sh 'mkdir -p allure-results/history && chmod -R 755 allure-results'
                         allure([
                             includeProperties: false,
                             jdk: '',
