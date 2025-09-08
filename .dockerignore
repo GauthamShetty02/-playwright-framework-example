@@ -11,3 +11,8 @@ README.md
 Jenkinsfile*
 .qodo
 .allure
+*.tar
+*.tar.gz
+*.zip
+Dockerfile.simple
+.dockerignore

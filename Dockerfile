@@ -51,9 +51,9 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Create test-results directory and set permissions
-RUN mkdir -p /app/test-results && \
-    chown -R pwuser:pwuser /app
+# Create directories with proper permissions
+RUN mkdir -p /app/test-results /app/allure-results && \
+    chown pwuser:pwuser /app/test-results /app/allure-results
 
 USER pwuser
 CMD ["npx", "playwright", "test"]
