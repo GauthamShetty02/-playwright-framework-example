@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+allure-results
+allure-report
+logs
+test-results
+playwright-report
+.git
+.gitignore
+README.md
+Jenkinsfile*
+.qodo
+.allure
