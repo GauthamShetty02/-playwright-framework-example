@@ -1,8 +1,8 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=America/Los_Angeles
-ARG DOCKER_IMAGE_NAME_TEMPLATE="mcr.microsoft.com/playwright:v%version%-jammy"
+ARG DOCKER_IMAGE_NAME_TEMPLATE="mcr.microsoft.com/playwright:v%version%-noble"
 
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
@@ -29,28 +29,18 @@ RUN apt-get update && \
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# Install Playwright from npm instead of tar.gz
+# Fix for GitHub issue #21622 - install from npm instead of missing tar.gz
+
+# 2. Bake in browsers & deps.
+#    Browsers will be downloaded in `/ms-playwright`.
+#    Note: make sure to set 777 to the registry so that any user can access
+#    registry.
 RUN mkdir /ms-playwright && \
     mkdir /ms-playwright-agent && \
     cd /ms-playwright-agent && npm init -y && \
-    npm i playwright@1.40.0 && \
+    npm i playwright && \
     npx playwright install --with-deps && \
     rm -rf /var/lib/apt/lists/* && \
-    # Workaround for https://github.com/microsoft/playwright/issues/27313
-    if [ "$(uname -m)" = "aarch64" ]; then \
-        rm -f /usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstwebrtc.so; \
-    else \
-        rm -f /usr/lib/x86_64-linux-gnu/gstreamer-1.0/libgstwebrtc.so; \
-    fi && \
     rm -rf /ms-playwright-agent && \
     rm -rf ~/.npm/ && \
     chmod -R 777 /ms-playwright
-
-# === PROJECT SETUP ===
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-
-USER pwuser
-CMD ["npx", "playwright", "test"]
