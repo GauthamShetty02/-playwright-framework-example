@@ -56,4 +56,4 @@ COPY . .
 # Create all required directories
 RUN mkdir -p /app/test-results /app/allure-results /app/playwright-report /app/logs
 
-CMD ["npx", "playwright", "test"]
+CMD ["npx", "playwright", "test", "--reporter=allure-playwright"]
