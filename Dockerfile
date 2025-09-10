@@ -46,14 +46,14 @@ RUN mkdir /ms-playwright && \
     chmod -R 777 /ms-playwright
 
 # === PROJECT SETUP ===
-WORKDIR /app
+# WORKDIR /app
 
-# Install only playwright-test-framework-advanced in Docker
-RUN npm install playwright-test-framework-advanced@^1.0.0
+# # Install only playwright-test-framework-advanced in Docker
+# RUN npm install playwright-test-framework-advanced@^1.0.0
 
-COPY . .
+# COPY . .
 
-# Create all required directories
-RUN mkdir -p /app/test-results /app/allure-results /app/playwright-report /app/logs
+# # Create all required directories
+# RUN mkdir -p /app/test-results /app/allure-results /app/playwright-report /app/logs
 
-CMD ["npx", "playwright", "test", "--reporter=allure-playwright"]
+# CMD ["npx", "playwright", "test", "--reporter=allure-playwright"]
