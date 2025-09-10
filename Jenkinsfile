@@ -22,12 +22,6 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t playwright-framework:latest .'
-            }
-        }
-        
         stage('Cleanup Previous Results') {
             steps {
                 sh 'rm -rf allure-results logs allure-report || true'
@@ -42,7 +36,7 @@ pipeline {
         //             def testResult = 0
         //             withCredentials([string(credentialsId: 'groq-api-key', variable: 'GROQ_API_KEY')]) {
         //                 testResult = sh(
-        //                     script: 'docker run --rm -e GROQ_API_KEY="$GROQ_API_KEY" -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
+        //                     script: 'GROQ_API_KEY="$GROQ_API_KEY" npx playwright test --reporter=allure-playwright',
         //                     returnStatus: true
         //                 )
         //             }
@@ -60,7 +54,7 @@ pipeline {
             steps {
                 script {
                     def testResult = sh(
-                        script: 'docker run --rm -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/logs:/app/logs playwright-framework:latest',
+                        script: 'npx playwright test --reporter=allure-playwright',
                         returnStatus: true
                     )
                     
